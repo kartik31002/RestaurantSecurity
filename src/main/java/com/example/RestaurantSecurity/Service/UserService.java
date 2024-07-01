@@ -38,8 +38,8 @@ public class UserService {
 
         //create customer from the provided details
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        User savedCustomer = userRepository.save(user);
-        return new ResponseEntity<>(savedCustomer, HttpStatus.CREATED);
+        User savedUser = userRepository.save(user);
+        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> updateUser(String authHeader, User user){

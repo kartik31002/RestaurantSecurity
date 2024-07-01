@@ -15,7 +15,7 @@ public class CartService {
     @Autowired
     private CartRepository cartRepository;
     @Autowired
-    private UserRepository customerRepository;
+    private UserRepository userRepository;
     @Autowired
     private FoodItemRepository foodItemRepository;
     @Autowired
@@ -31,12 +31,12 @@ public class CartService {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         //check for valid customer
-        Optional<User> customer = customerRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(userEmail);
         //Check for valid Customer
 
             List<FoodItemResponse> foodItemResponses = new ArrayList<>();
             //check if an open cart is present in the d
-            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(customer.get(), true);
+            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(user.get(), true);
             if(cart.isPresent()){
                 for(Map.Entry<FoodItem, Integer> set : cart.get().getFoodItems().entrySet()){
                     FoodItemResponse foodItemResponse = new FoodItemResponse();
@@ -45,7 +45,7 @@ public class CartService {
                     foodItemResponses.add(foodItemResponse);
                 }
                 CartResponse cartResponse = new CartResponse();
-                cartResponse.setUser(customer.get());
+                cartResponse.setUser(user.get());
                 cartResponse.setOpenCart(true);
                 cartResponse.setFoodItemResponse(foodItemResponses);
                 cartResponse.setTotalAmount(cart.get().getTotalAmount());
@@ -56,7 +56,7 @@ public class CartService {
             //If an open cart is not present then create one
             else {
                 Cart newCart = new Cart();
-                newCart.setUser(customer.get());
+                newCart.setUser(user.get());
                 newCart.setOpenCart(true);
                 Cart savedCart = cartRepository.save(newCart);
                 return new ResponseEntity<>(savedCart, HttpStatus.CREATED);
@@ -69,7 +69,7 @@ public class CartService {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         //check for valid customer
-        Optional<User> customer = customerRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(userEmail);
 
             //Get food items from the list of ids provided and check for invalid ids and unavailable items
             ResponseEntity<?> foodItemGet = getFoodItemList(foodItemIds);
@@ -80,7 +80,7 @@ public class CartService {
 //            double totalAmount = foodItems.stream().mapToDouble(FoodItem::getPrice).sum();
             List<FoodItemResponse> foodItemResponses = new ArrayList<>();
             //check if an open cart is present for the customer
-            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(customer.get(), true);
+            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(user.get(), true);
             if(cart.isPresent()) {
 
                 //get the existing items in the cart and add the new items to the list
@@ -105,7 +105,7 @@ public class CartService {
                 Cart savedCart = cartRepository.save(cart.get());
 
                 CartResponse cartResponse = new CartResponse();
-                cartResponse.setUser(customer.get());
+                cartResponse.setUser(user.get());
                 cartResponse.setOpenCart(true);
                 cartResponse.setFoodItemResponse(foodItemResponses);
                 cartResponse.setTotalAmount(totalAmount);
@@ -123,14 +123,14 @@ public class CartService {
                 }
                 //if open cart is not present then create one
                 Cart newCart = new Cart();
-                newCart.setUser(customer.get());
+                newCart.setUser(user.get());
                 newCart.setOpenCart(true);
                 newCart.setFoodItems(foodItems);
                 newCart.setTotalAmount(totalAmount);
                 Cart savedCart = cartRepository.save(newCart);
 
                 CartResponse cartResponse = new CartResponse();
-                cartResponse.setUser(customer.get());
+                cartResponse.setUser(user.get());
                 cartResponse.setOpenCart(true);
                 cartResponse.setFoodItemResponse(foodItemResponses);
                 cartResponse.setTotalAmount(totalAmount);
@@ -159,14 +159,14 @@ public class CartService {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         //check for valid customer
-        Optional<User> customer = customerRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(userEmail);
 
             List<FoodItemResponse> foodItemResponses = new ArrayList<>();
             //check for invalid food items
             ResponseEntity<?> foodItemGet = getFoodItemList(foodItemIds);
             if(foodItemGet.getStatusCode()==HttpStatus.BAD_REQUEST) return foodItemGet;
             Map<FoodItem, Integer> foodItems = (Map<FoodItem, Integer>) foodItemGet.getBody();
-            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(customer.get(), true);
+            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(user.get(), true);
 
             //check if an open cart is present for the customer
             if(cart.isPresent()) {
@@ -193,7 +193,7 @@ public class CartService {
                 Cart savedCart = cartRepository.save(cart.get());
 
                 CartResponse cartResponse = new CartResponse();
-                cartResponse.setUser(customer.get());
+                cartResponse.setUser(user.get());
                 cartResponse.setOpenCart(true);
                 cartResponse.setFoodItemResponse(foodItemResponses);
                 cartResponse.setTotalAmount(totalAmount);
@@ -205,11 +205,11 @@ public class CartService {
             //if cart is not present then create an empty one
             else {
                 Cart newCart = new Cart();
-                newCart.setUser(customer.get());
+                newCart.setUser(user.get());
                 newCart.setOpenCart(true);
                 Cart savedCart = cartRepository.save(newCart);
                 CartResponse cartResponse = new CartResponse();
-                cartResponse.setUser(customer.get());
+                cartResponse.setUser(user.get());
                 cartResponse.setOpenCart(true);
                 cartResponse.setFoodItemResponse(foodItemResponses);
                 cartResponse.setTotalAmount(0);
@@ -224,11 +224,11 @@ public class CartService {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         //check for valid customer
-        Optional<User> customer = customerRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(userEmail);
 
             List<FoodItemResponse> foodItemResponses = new ArrayList<>();
             //check for an open cart for the customer
-            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(customer.get(), true);
+            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(user.get(), true);
             if(cart.isPresent()){
 
                 //check for empty cart
@@ -283,12 +283,12 @@ public class CartService {
                 Cart savedCart = cartRepository.save(cart.get());
 
                 //update frequency of the customer
-                customer.get().setFrequency(customer.get().getFrequency()+1);
-                User savedCustomer = customerRepository.save(customer.get());
+                user.get().setFrequency(user.get().getFrequency()+1);
+                User savedCustomer = userRepository.save(user.get());
 
                 // Create order
                 CustomerOrder order = new CustomerOrder();
-                order.setUser(customer.get());
+                order.setUser(user.get());
                 order.setFoodItems(savedItems);
                 order.setTotalAmount(cart.get().getTotalAmount());
                 order.setVoucher(voucher);
@@ -301,7 +301,7 @@ public class CartService {
                 CustomerOrder savedOrder = orderRepository.save(order);
 
                 OrderResponse orderResponse = new OrderResponse();
-                orderResponse.setUser(customer.get());
+                orderResponse.setUser(user.get());
                 orderResponse.setOrderDate(savedOrder.getOrderDate());
                 orderResponse.setId(savedOrder.getId());
                 orderResponse.setCartId(cart.get().getId());
@@ -316,7 +316,7 @@ public class CartService {
 
                 //if open cart is not present then create a new one and return empty cart
                 Cart newCart = new Cart();
-                newCart.setUser(customer.get());
+                newCart.setUser(user.get());
                 newCart.setOpenCart(true);
                 Cart savedCart = cartRepository.save(newCart);
                 return new ResponseEntity<>("Cart is Empty.", HttpStatus.BAD_REQUEST);
@@ -330,10 +330,10 @@ public class CartService {
         String jwt = authHeader.substring(7);
         String userEmail = jwtService.extractUsername(jwt);
         //check for valid customer
-        Optional<User> customer = customerRepository.findByEmail(userEmail);
+        Optional<User> user = userRepository.findByEmail(userEmail);
             List<FoodItemResponse> foodItemResponses = new ArrayList<>();
             //check for an open cart for the customer
-            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(customer.get(), true);
+            Optional<Cart> cart = cartRepository.findByUserAndOpenCart(user.get(), true);
             if(cart.isPresent()){
 
                 //check for empty cart
@@ -377,7 +377,7 @@ public class CartService {
 
                 // Create order
                 OrderResponse order = new OrderResponse();
-                order.setUser(customer.get());
+                order.setUser(user.get());
                 order.setFoodItemResponses(foodItemResponses);
                 order.setTotalAmount(cart.get().getTotalAmount());
                 order.setVoucher(voucher);
@@ -392,7 +392,7 @@ public class CartService {
 
                 //if open cart is not present then create a new one and return empty cart
                 Cart newCart = new Cart();
-                newCart.setUser(customer.get());
+                newCart.setUser(user.get());
                 newCart.setOpenCart(true);
                 Cart savedCart = cartRepository.save(newCart);
                 return new ResponseEntity<>("Cart is Empty.", HttpStatus.BAD_REQUEST);
