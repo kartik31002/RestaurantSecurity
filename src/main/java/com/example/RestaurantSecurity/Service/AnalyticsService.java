@@ -31,12 +31,12 @@ public class AnalyticsService {
     }
     public ResponseEntity<?> getBestCustomer() {
         //Query the db for the customer with the highest sum of amount among all orders
-        User customer =  userRepository.findById(userRepository.getBestCustomer()).get();
-        double total_spent = userRepository.getTotalAmount(customer);
+        User user =  userRepository.findById(userRepository.getBestCustomer()).get();
+        double total_spent = userRepository.getTotalAmount(user);
 
         //Make an instance of total customer spending class which contains a customer and his total spending among all visits.
         TotalCustomerSpending totalCustomerSpending = new TotalCustomerSpending();
-        totalCustomerSpending.setUser(customer);
+        totalCustomerSpending.setUser(user);
         totalCustomerSpending.setTotalSpent(total_spent);
         return new ResponseEntity<>(totalCustomerSpending,HttpStatus.OK);
 
@@ -44,26 +44,26 @@ public class AnalyticsService {
 
     public ResponseEntity<?> avgSpendBy(Integer customerId){
 
-        Optional<User> optionalCustomer = userRepository.findById(customerId);
+        Optional<User> optionalUser = userRepository.findById(customerId);
 
         //Check for valid customer
-        if (optionalCustomer.isPresent()) {
+        if (optionalUser.isPresent()) {
 
             //query the db for avg spend by this customer
-            return new ResponseEntity<>(userRepository.avgSpendBy(optionalCustomer.get()), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(userRepository.avgSpendBy(optionalUser.get()), HttpStatus.ACCEPTED);
         } else {
             return new ResponseEntity<>("Customer does not exist.", HttpStatus.BAD_REQUEST);
         }
     }
 
     public ResponseEntity<?> prevOrders(Integer customerId){
-            Optional<User> optionalCustomer = userRepository.findById(customerId);
+            Optional<User> optionalUser = userRepository.findById(customerId);
 
             //Check for valid customer
-            if (optionalCustomer.isPresent()) {
+            if (optionalUser.isPresent()) {
 
                 //return all the orders form the customer
-                return new ResponseEntity<>(orderRepository.prevOrders(optionalCustomer.get()), HttpStatus.OK);
+                return new ResponseEntity<>(orderRepository.prevOrders(optionalUser.get()), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>("Customer does not exist.", HttpStatus.BAD_REQUEST);
             }
